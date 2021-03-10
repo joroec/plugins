@@ -336,6 +336,7 @@ class updatedns
 
         $this->_debugID = rand(1000000, 9999999);
 
+        log_error("Force: $forceUpdate");
         if ($forceUpdate == false && $this->_detectChange() == false) {
             $this->_error(10);
         } else {
