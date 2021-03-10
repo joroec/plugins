@@ -673,7 +673,11 @@ class updatedns
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+                curl_setopt($ch, CURLOPT_INTERFACE, $this->_dnsRequestIf);
+                curl_setopt($ch, CURLOPT_DNS_LOCAL_IP4, $this->_dnsIP);
                 curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                     "Authorization: Bearer {$this->_dnsPass}",
                     'Content-Type: application/json'
@@ -684,8 +688,7 @@ class updatedns
                 curl_setopt($ch, CURLOPT_STDERR, $ffile);
                 curl_setopt($ch, CURLOPT_VERBOSE, true);
 
-                // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($hostData));
-                curl_setopt($ch, CURLOPT_POSTFIELDS, "");
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($hostData));
                 curl_setopt($ch, CURLOPT_URL, $server);
                 break;
             case 'gandi-livedns':
