@@ -108,7 +108,7 @@ function dyndns_list()
         'custom-v6' => 'Custom (v6)',
         'dhs' => 'DHS',
         'digitalocean' => 'DigitalOcean',
-        'digitaloceanv6' => 'DigitalOcean (v6)',
+        'digitalocean-v6' => 'DigitalOcean (v6)',
         'dnsexit' => 'DNSexit',
         'dnsomatic' => 'DNS-O-Matic',
         'duckdns' => 'Duck DNS',

@@ -199,8 +199,7 @@ class updatedns
 
         $this->_curlIpresolveV4 = $curlIpresolveV4;
         $this->_curlSslVerifypeer = $curlSslVerifypeer;
-        // $this->_dnsVerboseLog = $dnsVerboseLog;
-        $this->_dnsVerboseLog = true;
+        $this->_dnsVerboseLog = $dnsVerboseLog;
         if ($this->_dnsVerboseLog) {
             log_error("Dynamic DNS: updatedns() starting");
         }
@@ -296,7 +295,7 @@ class updatedns
             case 'regfish-v6':
             case 'route53-v6':
             case 'cloudflare-token-v6':
-            case 'digitaloceanv6':
+            case 'digitalocean-v6':
                 $this->_useIPv6 = true;
                 break;
             default:
@@ -332,11 +331,9 @@ class updatedns
             unlock($dyndnslck);
             return;
         }
-        log_error("IP FOUND: $this->_dnsIP");
 
         $this->_debugID = rand(1000000, 9999999);
 
-        log_error("Force: $forceUpdate");
         if ($forceUpdate == false && $this->_detectChange() == false) {
             $this->_error(10);
         } else {
@@ -353,7 +350,7 @@ class updatedns
                 case 'custom-v6':
                 case 'dhs':
                 case 'digitalocean':
-                case 'digitaloceanv6':
+                case 'digitalocean-v6':
                 case 'gandi-livedns':
                 case 'dnsexit':
                 case 'dnsomatic':
@@ -661,7 +658,7 @@ class updatedns
                 curl_setopt($ch, CURLOPT_URL, $server . 'hostname=' . $this->_dnsHost);
                 break;
             case 'digitalocean':
-            case 'digitaloceanv6':
+            case 'digitalocean-v6':
                 /*
                 * dnsHost should be the root domain
                 * dnsUser should be the record ID
@@ -669,26 +666,17 @@ class updatedns
                 */
                 $server = "https://api.digitalocean.com/v2/domains/" . $this->_dnsHost . "/records/" . $this->_dnsUser;
                 $hostData = array("data" => "{$this->_dnsIP}");
-                log_error("DATA: $this->_dnsIP");
 
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
                 curl_setopt($ch, CURLOPT_INTERFACE, $this->_dnsRequestIf);
                 curl_setopt($ch, CURLOPT_DNS_LOCAL_IP4, $this->_dnsIP);
                 curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                     "Authorization: Bearer {$this->_dnsPass}",
                     'Content-Type: application/json'
                 ));
-                log_error(json_encode($hostData));
-
-                $ffile = fopen('/errorlog.txt', 'w+');
-                curl_setopt($ch, CURLOPT_STDERR, $ffile);
-                curl_setopt($ch, CURLOPT_VERBOSE, true);
-
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($hostData));
                 curl_setopt($ch, CURLOPT_URL, $server);
                 break;
@@ -1192,13 +1180,6 @@ class updatedns
         }
         if ($this->_dnsService != 'ods' and $this->_dnsService != 'route53' and $this->_dnsService != 'route53-v6') {
             $data = curl_exec($ch);
-
-            log_error("errno ".curl_errno($ch));
-            if(curl_errno($ch)){
-                log_error('Curl error: ' . curl_error($ch));
-            }
-            log_error(print_r(curl_getinfo($ch), true));
-            log_error("Data direct $data");
             $this->_checkStatus($ch, $data);
             @curl_close($ch);
         }
@@ -1473,14 +1454,14 @@ class updatedns
                 }
                 break;
             case 'digitalocean':
-            case 'digitaloceanv6':
+            case 'digitalocean-v6':
                 $output = json_decode($data);
                 if ($output->domain_record->data === $this->_dnsIP) {
                     $status = "Dynamic DNS: (Success) Record ID {$this->_dnsUser} updated to {$this->_dnsIP}";
                     $successful_update = true;
                 } else {
                     $status = "Dynamic DNS Record ID ({$this->_dnsUser}): UNKNOWN ERROR";
-                    log_error("Dynamic DNS Record ID ({$this->_dnsUser}): PAYLOAD: $data");
+                    log_error("Dynamic DNS Record ID ({$this->_dnsUser}): PAYLOAD: {$data}");
                 }
                 break;
             case 'gandi-livedns':
